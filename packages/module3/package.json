@@ -8,5 +8,8 @@
   },
   "keywords": [],
   "author": "Initech Global <balu.vyamajala@initechglobal.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "module1": "^1.0.1"
+  }
 }
