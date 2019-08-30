@@ -1,6 +1,6 @@
 {
   "name": "module2",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,6 @@
   "author": "Initech Global <balu.vyamajala@initechglobal.com>",
   "license": "ISC",
   "dependencies": {
-    "module1": "^0.0.2"
+    "module1": "^0.0.3"
   }
 }
