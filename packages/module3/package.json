@@ -1,6 +1,7 @@
 {
   "name": "module3",
   "version": "1.0.1",
+  "private": true,
   "description": "",
   "main": "test.js",
   "scripts": {
