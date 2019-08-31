@@ -1,3 +1,3 @@
 const { sum } = require("module1/math");
 
-console.log(sum(10, 5));
+console.log(sum(10, 15));
