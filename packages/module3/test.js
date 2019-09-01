@@ -1,3 +1,3 @@
 const { sum } = require("module1/math");
 
-console.log(sum(20, 25));
+console.log(sum(25, 25));
