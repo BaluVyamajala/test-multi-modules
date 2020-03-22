@@ -1,0 +1,228 @@
+openapi: 3.0.0
+info:
+  title: '{{ APIGW_NAME }}'
+  version: '{{ VERSION }}'
+tags:
+  - name: group-renewal-status-controller
+    description: Group Renewal Status Controller
+paths:
+  "/group-renewal/GetGroupRenewalStatus/{aff}/{abo}":
+    get:
+      tags:
+        - group-renewal-status-controller
+      summary: Gets information on renewal status under a Platinum Group
+      operationId: getGroupRenewalStatus
+      parameters:
+        - name: aff
+          in: path
+          description: platinum abo's for which data is requested for
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: abo
+          in: path
+          description: platinum for which data is requested for
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: aboName
+          in: query
+          description: filter downlines by abo name
+          required: false
+          schema:
+            type: string
+        - name: aboNumber
+          in: query
+          description: return only 1 record matching this abo number
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: businessNature
+          in: query
+          description: return only records matching this business nature
+          required: false
+          schema:
+            type: string
+            enum: 
+             - "Abo"
+             - "Customer"
+        - name: currentRenewalStatus
+          in: query
+          description: return only records matching currentRenewalStatus, expiring soon will be determined days before which abo can renew, varies by country
+          required: false
+          schema:
+            type: string
+            enum: 
+              - "Expired"
+              - "Expiring Soon"
+              - "Active"
+        - name: pageNum
+          in: query
+          description: defaulted to 1 if not passed
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          description: defaulted to 20 if not passed
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: sortKey
+          in: query
+          description: Default sorted by expiration status Expired/ExpiringSoon/Active and ascending order of expiration date within each
+          required: false
+          schema:
+            type: string
+            enum: 
+             - "Abo Number"
+             - "Distributor Name"
+             - "Business Nature"
+             - "Sponsor Name"
+             - "Expiry Date"
+             - "Current Renewal Status"
+             - "Group Renewal Consent Status"
+             - "Upline Order Consent Status"
+        - name: sponorNumber
+          in: query
+          description: returns all front lines of given sponser
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: fromExpirationDate
+          in: query
+          description: returns all abos with expiration date later than this date, input date format "2000-10-31T01:30:00.000-05:00"
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: toExpirationDate
+          in: query
+          description: returns all abos with expiration date before this date, input date format "2000-10-31T01:30:00.000-05:00"
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/GroupRenewalStatusResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+      deprecated: false
+      x-amazon-apigateway-integration:
+        # Dynamically pull down and set URI
+        uri: "http://${stageVariables.{{SERVICE_NAME}}_nlb_url}"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        connectionType: "VPC_LINK"
+        connectionId: "${stageVariables.{{SERVICE_NAME}}_vpc_link_id}"
+        httpMethod: "GET"
+        type: "http_proxy"
+      security:
+      - Authorizer{{ SERVICE_NAME }}: []
+securityDefinitions:
+  Authorizer{{ SERVICE_NAME }}:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-amazon-apigateway-authtype: "custom"
+    x-amazon-apigateway-authorizer:
+      authorizerUri: "{{ AUTHORIZER_URI }}"
+      authorizerResultTtlInSeconds: 300
+      type: "token"
+components:
+  schemas:
+    Abo:
+      type: object
+      properties:
+        aboNumber:
+          type: integer
+          format: int64
+        affiliate:
+          type: integer
+          format: int32
+        email:
+          type: string
+        entryDate:
+          type: string
+          format: date-time 
+        expirationDate:
+          type: string
+          format: date-time
+        distName:
+          type: string
+        distName2:
+          type: string
+        latinName:
+          type: string
+        phoneNumber:
+          type: string
+        privacyFlag:
+          type: boolean
+      title: Abo
+    GroupRenewalStatusResponse:
+      type: object
+      properties:
+        renewalStatusList:
+          type: array
+          items:
+            $ref: "#/components/schemas/RenewalStatusList"
+      title: GroupRenewalStatusResponse
+    RenewalStatusList:
+      type: object
+      properties:
+        abo:
+          $ref: "#/components/schemas/Abo"
+        accountStatus:
+          type: string
+        consentToUplineOrder:
+          type: boolean
+        consentToUplineRenewal:
+          type: boolean
+        renewalStatus:
+          type: string
+        upline:
+          $ref: "#/components/schemas/Upline"
+      title: RenewalStatusList
+    Upline:
+      type: object
+      properties:
+        aboNumber:
+          type: integer
+          format: int32
+        affiliate:
+          type: integer
+          format: int32
+        email:
+          type: string
+        entryDate:
+          type: string
+        expirationDate:
+          type: string
+        distName:
+          type: string
+        distName2:
+          type: string
+        latinName:
+          type: string
+        phoneNumber:
+          type: string
+        privacyFlag:
+          type: boolean
+      title: Upline
