@@ -11,6 +11,6 @@
   "license": "ISC",
   "devDependencies": {
     "lerna": "^3.16.4",
-    "webpack": "^4.39.3"
+    "webpack": "^5.75.0"
   }
 }
